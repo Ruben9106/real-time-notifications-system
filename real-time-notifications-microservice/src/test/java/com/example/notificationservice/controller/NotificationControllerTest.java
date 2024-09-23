@@ -1,6 +1,6 @@
 package com.example.notificationservice.controller;
 
-import com.example.notificationservice.HttpResponse.ApiResponse;
+import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.service.NotificationService;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,13 +36,13 @@ public class NotificationControllerTest {
     void testGetUserNotifications() {
         Notification notification = new Notification("1", "user1", "Notification message", Instant.now());
         when(notificationService.getUserNotifications(anyString())).thenReturn(
-                Mono.just(ResponseEntity.ok(new ApiResponse<>("success", "Notificaciones encontradas", List.of(notification)))));
+                Mono.just(ResponseEntity.ok(new CustomApiResponse<>("success", "Notificaciones encontradas", List.of(notification)))));
 
         StepVerifier.create(notificationController.getUserNotifications("user1"))
                 .expectNextMatches(response -> {
-                    ApiResponse<List<Notification>> apiResponse = response.getBody();
-                    assert apiResponse != null;
-                    return apiResponse.getData().size() == 1 && "Notification message".equals(apiResponse.getData().get(0).getMessage());
+                    CustomApiResponse<List<Notification>> customApiResponse = response.getBody();
+                    assert customApiResponse != null;
+                    return customApiResponse.getData().size() == 1 && "Notification message".equals(customApiResponse.getData().get(0).getMessage());
                 })
                 .verifyComplete();
     }
@@ -56,9 +56,9 @@ public class NotificationControllerTest {
 
         StepVerifier.create(notificationController.createNotification("user1", notification))
                 .expectNextMatches(response -> {
-                    ApiResponse<Notification> apiResponse = response.getBody();
-                    assert apiResponse != null;
-                    return "Notification message".equals(apiResponse.getData().getMessage());
+                    CustomApiResponse<Notification> customApiResponse = response.getBody();
+                    assert customApiResponse != null;
+                    return "Notification message".equals(customApiResponse.getData().getMessage());
                 })
                 .verifyComplete();
     }

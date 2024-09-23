@@ -1,62 +1,75 @@
 package com.example.notificationservice.controller;
 
-import com.example.notificationservice.HttpResponse.ApiResponse;
+import com.example.notificationservice.HttpResponse.CustomApiResponse; // Cambio de nombre de ApiResponse a CustomApiResponse
 import com.example.notificationservice.HttpResponse.ResponseUtil;
 import com.example.notificationservice.entity.User;
 import com.example.notificationservice.service.NotificationService;
 import com.example.notificationservice.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api-clients/v1.0/users")
+@Tag(name = "Users", description = "Operations related to User management in the notification system")
 public class UserController {
     private final UserService userService;
-
+    private final NotificationService notificationService;
 
     public UserController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
+        this.notificationService = notificationService;
     }
 
-    // Obtener todos los usuarios con sus notificaciones
+    @Operation(summary = "Get all users with their notifications", description = "Retrieve a list of users along with their notifications")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Successfully retrieved list of users",
+                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "404", description = "No users found")
+    })
     @GetMapping
-    public Mono<ResponseEntity<ApiResponse<List<User>>>> getAllUsers() {
+    public Mono<ResponseEntity<CustomApiResponse<List<User>>>> getAllUsers() {
         return userService.getAllUsersWithNotificationMessages()
-                .collectList() // Recoger todos los usuarios en una lista
+                .collectList()
                 .flatMap(users -> {
                     if (users.isEmpty()) {
-                        // Devolver una respuesta de error con tipo compatible
                         return ResponseUtil.createErrorResponse("No se encontraron usuarios.", HttpStatus.NOT_FOUND);
                     }
-                    // Devolver una respuesta exitosa con la lista de usuarios
                     return ResponseUtil.createSuccessResponse("Usuarios encontrados", users);
                 });
     }
 
-    //Guardar un usuario
+    @Operation(summary = "Save a new user", description = "Create and save a new user in the system")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "User successfully saved",
+                    content = @Content(schema = @Schema(implementation = User.class))),
+            @ApiResponse(responseCode = "500", description = "Error saving the user")
+    })
     @PostMapping
-    public Mono<ResponseEntity<ApiResponse<User>>> saveUser(@RequestBody User user) {
+    public Mono<ResponseEntity<CustomApiResponse<User>>> saveUser(@RequestBody User user) {
         return userService.saveUser(user)
                 .flatMap(savedUser -> ResponseUtil.createSuccessResponse("Usuario guardado con éxito.", savedUser))
                 .onErrorResume(e -> ResponseUtil.createErrorResponse("Error al guardar el usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
     }
 
-    //Eliminar un usuario
+    @Operation(summary = "Delete a user by ID", description = "Delete a user from the system by their ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "User successfully deleted"),
+            @ApiResponse(responseCode = "404", description = "User not found")
+    })
     @DeleteMapping("/{id}")
-    public Mono<ResponseEntity<ApiResponse<Void>>> deleteUser(@PathVariable String id) {
+    public Mono<ResponseEntity<CustomApiResponse<Void>>> deleteUser(@PathVariable String id) {
         return userService.deleteUserById(id)
-                .flatMap(successMessage -> ResponseUtil.createSuccessResponse(successMessage, (Void) null))  // Respuesta de éxito con tipo Void
-                .onErrorResume(e -> ResponseUtil.createErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND));  // Respuesta de error
+                .flatMap(successMessage -> ResponseUtil.createSuccessResponse(successMessage, (Void) null))
+                .onErrorResume(e -> ResponseUtil.createErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND));
     }
-
-
-
-//mono sirve para los restpost y flux para los get, responseEntity es para manejar las respuestas de los servicios
 }

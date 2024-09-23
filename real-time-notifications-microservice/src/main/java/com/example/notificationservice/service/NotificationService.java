@@ -1,9 +1,8 @@
 package com.example.notificationservice.service;
 
-import com.example.notificationservice.HttpResponse.ApiResponse;
+import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.HttpResponse.ResponseUtil;
 import com.example.notificationservice.entity.Notification;
-import com.example.notificationservice.entity.User;
 import com.example.notificationservice.repository.NotificationRepository;
 import com.example.notificationservice.repository.UserRepository;
 
@@ -63,7 +62,7 @@ public class NotificationService {
     }
 
     // Obtener todas las notificaciones de un usuario por su ID
-    public Mono<ResponseEntity<ApiResponse<List<Notification>>>> getUserNotifications(String userId) {
+    public Mono<ResponseEntity<CustomApiResponse<List<Notification>>>> getUserNotifications(String userId) {
         return notificationRepository.findByUserReferenceId(userId)
                 .collectList()  // Recolectamos todas las notificaciones en una lista
                 .flatMap(notifications -> {

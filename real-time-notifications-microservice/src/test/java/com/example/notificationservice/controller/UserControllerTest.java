@@ -1,6 +1,6 @@
 package com.example.notificationservice.controller;
 
-import com.example.notificationservice.HttpResponse.ApiResponse;
+import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.entity.User;
 import com.example.notificationservice.service.NotificationService;
 import com.example.notificationservice.service.UserService;
@@ -55,12 +55,12 @@ class UserControllerTest {
         webTestClient.get().uri("/api-clients/v1.0/users")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(ApiResponse.class)
+                .expectBody(CustomApiResponse.class)
                 .consumeWith(response -> {
-                    ApiResponse<?> apiResponse = response.getResponseBody();
-                    assert apiResponse != null;
-                    assert apiResponse.getStatus().equals("success");
-                    assert apiResponse.getMessage().equals("Usuarios encontrados");
+                    CustomApiResponse<?> customApiResponse = response.getResponseBody();
+                    assert customApiResponse != null;
+                    assert customApiResponse.getStatus().equals("success");
+                    assert customApiResponse.getMessage().equals("Usuarios encontrados");
                 });
     }
 
@@ -80,12 +80,12 @@ class UserControllerTest {
                 .bodyValue(user)
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(ApiResponse.class)
+                .expectBody(CustomApiResponse.class)
                 .consumeWith(response -> {
-                    ApiResponse<?> apiResponse = response.getResponseBody();
-                    assert apiResponse != null;
-                    assert apiResponse.getStatus().equals("success");
-                    assert apiResponse.getMessage().equals("Usuario guardado con éxito.");
+                    CustomApiResponse<?> customApiResponse = response.getResponseBody();
+                    assert customApiResponse != null;
+                    assert customApiResponse.getStatus().equals("success");
+                    assert customApiResponse.getMessage().equals("Usuario guardado con éxito.");
                 });
     }
 
@@ -98,12 +98,12 @@ class UserControllerTest {
         webTestClient.delete().uri("/api-clients/v1.0/users/1")
                 .exchange()
                 .expectStatus().isOk()
-                .expectBody(ApiResponse.class)
+                .expectBody(CustomApiResponse.class)
                 .consumeWith(response -> {
-                    ApiResponse<?> apiResponse = response.getResponseBody();
-                    assert apiResponse != null;
-                    assert apiResponse.getStatus().equals("success");
-                    assert apiResponse.getMessage().equals("Usuario con ID: 1 ha sido eliminado con éxito.");
+                    CustomApiResponse<?> customApiResponse = response.getResponseBody();
+                    assert customApiResponse != null;
+                    assert customApiResponse.getStatus().equals("success");
+                    assert customApiResponse.getMessage().equals("Usuario con ID: 1 ha sido eliminado con éxito.");
                 });
     }
 
@@ -116,12 +116,12 @@ class UserControllerTest {
         webTestClient.delete().uri("/api-clients/v1.0/users/1")
                 .exchange()
                 .expectStatus().isNotFound()
-                .expectBody(ApiResponse.class)
+                .expectBody(CustomApiResponse.class)
                 .consumeWith(response -> {
-                    ApiResponse<?> apiResponse = response.getResponseBody();
-                    assert apiResponse != null;
-                    assert apiResponse.getStatus().equals("error");
-                    assert apiResponse.getMessage().equals("Usuario no encontrado con ID: 1");
+                    CustomApiResponse<?> customApiResponse = response.getResponseBody();
+                    assert customApiResponse != null;
+                    assert customApiResponse.getStatus().equals("error");
+                    assert customApiResponse.getMessage().equals("Usuario no encontrado con ID: 1");
                 });
     }
 

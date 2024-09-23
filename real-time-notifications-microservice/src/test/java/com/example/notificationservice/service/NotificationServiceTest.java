@@ -1,6 +1,6 @@
 package com.example.notificationservice.service;
 
-import com.example.notificationservice.HttpResponse.ApiResponse;
+import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.repository.NotificationRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,13 +36,13 @@ public class NotificationServiceTest {
         Notification notification = new Notification("1", "user1", "Notification message", Instant.now());
         when(notificationRepository.findByUserReferenceId(anyString())).thenReturn(Flux.just(notification));
 
-        Mono<ResponseEntity<ApiResponse<List<Notification>>>> result = notificationService.getUserNotifications("user1");
+        Mono<ResponseEntity<CustomApiResponse<List<Notification>>>> result = notificationService.getUserNotifications("user1");
 
         StepVerifier.create(result)
                 .expectNextMatches(response -> {
-                    ApiResponse<List<Notification>> apiResponse = response.getBody();
-                    assert apiResponse != null;
-                    return "success".equals(apiResponse.getStatus()) && apiResponse.getData().size() == 1;
+                    CustomApiResponse<List<Notification>> customApiResponse = response.getBody();
+                    assert customApiResponse != null;
+                    return "success".equals(customApiResponse.getStatus()) && customApiResponse.getData().size() == 1;
                 })
                 .verifyComplete();
     }
