@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.events.NotificationEventPublisher;
+import com.example.notificationservice.exceptions.NotificationExceptions;
 import com.example.notificationservice.repository.NotificationRepository;
 import com.example.notificationservice.utils.DateUtils;
 
@@ -30,14 +31,17 @@ public class NotificationService {
     private NotificationEventPublisher eventPublisher;
 
     public Mono<Notification> createNotification(Notification notification) {
+        if (notification == null) throw NotificationExceptions.nullPointerError();//Se lanza una excepción si la notificación es nula
         notification.setTimestamp(DateUtils.now());//Se establece la fecha y hora actual en la notificación
         return notificationRepository.save(notification)
                 .doOnSuccess( savedNotification -> 
-                eventPublisher.publishEvent(savedNotification.getUserId(), savedNotification.getMessage()));
+                eventPublisher.publishEvent(savedNotification.getUserId(), savedNotification.getMessage()))
+                .onErrorMap(e -> NotificationExceptions.errorCreatingNotification(e.getMessage()));
     }
 
     public Flux<Notification> getNotificationsForUser(String userId) {
-        return notificationRepository.findByUserId(userId);
+        return notificationRepository.findByUserId(userId)
+        .switchIfEmpty(Mono.error(NotificationExceptions.notificationNotFound(userId)));
     }
 
     public Flux<Notification> getAllNotifications(){
