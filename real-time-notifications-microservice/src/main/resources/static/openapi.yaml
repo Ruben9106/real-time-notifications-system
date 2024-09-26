@@ -22,13 +22,13 @@ paths:
         "404":
           description: No users found
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseListUser"
         "200":
           description: Successfully retrieved list of users
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/User"
     post:
@@ -47,13 +47,13 @@ paths:
         "201":
           description: User successfully saved
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/User"
         "500":
           description: Error saving the user
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseUser"
   /api-clients/v1.0/notifications/users/{userId}:
@@ -73,13 +73,13 @@ paths:
         "200":
           description: Successfully retrieved notifications
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/Notification"
         "404":
           description: User not found
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseListNotification"
     post:
@@ -104,13 +104,13 @@ paths:
         "201":
           description: Notification successfully created
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/Notification"
         "400":
           description: Invalid request data
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseNotification"
   /api-clients/v1.0/notifications/stream/{userId}:
@@ -150,13 +150,13 @@ paths:
         "200":
           description: User successfully deleted
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseVoid"
         "404":
           description: User not found
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseVoid"
   /api-clients/v1.0/notifications/users/{userId}/notifications:
@@ -182,13 +182,13 @@ paths:
         "404":
           description: Notification not found
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseVoid"
         "200":
           description: Notification successfully deleted
           content:
-            application/yaml:
+            application/json:
               schema:
                 $ref: "#/components/schemas/CustomApiResponseVoid"
 components:
