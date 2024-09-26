@@ -2,7 +2,8 @@ package com.example.notificationservice.controller;
 
 import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.HttpResponse.ResponseUtil;
-import com.example.notificationservice.dto.NotificationRequest;
+import com.example.notificationservice.dto.NotificationRequestDto;
+import com.example.notificationservice.dto.NotificationResponseDto;
 import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.repository.NotificationRepository;
 import com.example.notificationservice.service.NotificationService;
@@ -80,7 +81,8 @@ public class NotificationController {
     })
     // II. Verificar todos los userReferenceId que tiene el mismo mensaje o notificacions
     @GetMapping("/users/notifications")
-    public Mono<ResponseEntity<CustomApiResponse<List<Notification>>>> getNotificationsUserIdforMessage(@RequestBody String message){
+    public Mono<ResponseEntity<CustomApiResponse<List<NotificationResponseDto>>>>
+    getNotificationsUserIdforMessage(@RequestBody String message){
         return notificationService.getNotificationsByMessage(message);
     }
 
@@ -95,7 +97,7 @@ public class NotificationController {
     // I.Crear mensaje o notificacion al usuario
     @PostMapping("/users/{userId}")  // I. Metodo para crear la notificacion o el mensaje del usuario
     public Mono<ResponseEntity<CustomApiResponse<Notification>>> createNotification
-    (@PathVariable String userId, @Valid @RequestBody NotificationRequest notificationRequest) {
+    (@PathVariable String userId, @Valid @RequestBody NotificationRequestDto notificationRequest) {
         // 1.Creamos la  instancia de Notification  en el que setearemos el valor del mensaje
         Notification notification = new Notification();
         // 2. Recuperamos  solo el valor del campo "message de la clase notificationRequest"
@@ -119,7 +121,6 @@ public class NotificationController {
                 .flatMap(successMessage -> ResponseUtil.createSuccessResponse(successMessage, (Void) null))
                 .onErrorResume(e -> ResponseUtil.createErrorResponse(e.getMessage(), HttpStatus.NOT_FOUND));
     }
-    /*
                     //Endpoint para obtener las notificaciones de un usuario especifico
                     @Operation(summary = "Get stream user notifications", description = "Stream notifications for a specific user in real time")
                     @ApiResponses(value = {
@@ -130,7 +131,7 @@ public class NotificationController {
                     @GetMapping(value = "/stream/{userId}", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
                     public Flux<Notification> streamNotifications(@PathVariable String userId) {
                         return notificationService.getNotificationsStream(userId);  // Flujo de notificaciones para un usuario específico
-                    }  */
+                    }
 
 /*
                             @Operation(summary = "Create a notification for a user", description = "Create a new notification for a specific user")
@@ -145,13 +146,5 @@ public class NotificationController {
                                         .flatMap(createdNotification -> ResponseUtil.createSuccessResponse("Notificación creada con éxito", createdNotification))
                                         .onErrorResume(e -> ResponseUtil.createErrorResponse(e.getMessage(), HttpStatus.BAD_REQUEST));
                             }  */
-
-
-
-
-
-
-
-
 
 }

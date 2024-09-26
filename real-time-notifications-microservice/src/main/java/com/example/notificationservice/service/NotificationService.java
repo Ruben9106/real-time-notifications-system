@@ -3,6 +3,7 @@ package com.example.notificationservice.service;
 
 import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.HttpResponse.ResponseUtil;
+import com.example.notificationservice.dto.NotificationResponseDto;
 import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.repository.NotificationRepository;
 import com.example.notificationservice.repository.UserRepository;
@@ -179,7 +180,7 @@ public class NotificationService {
      * que a su ves este contiene una lista de notificaciones.
      */
     // II.1 Metodo para busca los userReferenceId que contenga el mismo mensaje
-    public Mono<ResponseEntity<CustomApiResponse<List<Notification>>>> getNotificationsByMessage(String message) {
+    public Mono<ResponseEntity<CustomApiResponse<List<NotificationResponseDto>>>> getNotificationsByMessage(String message) {
         //1. Llama al metodo del repositorio para encontrar todas los usuarios  que tienen el mismo mensaje
         return notificationRepository.findByMessage(message)
                 // 2. Recolectando todas las notificaciones en una lista
@@ -189,8 +190,15 @@ public class NotificationService {
                     // 4.1 Verifica si la lista de notificaciones está vacia
                     if (notifications.isEmpty()) {
                         return ResponseUtil.createErrorResponse("No se encontraron notificaciones para el mensaje", HttpStatus.NOT_FOUND);
-                    } else {//  4.2 Si la lista no está vacía regresa la lista
-                        return ResponseUtil.createSuccessResponse("Usuarios encontrados con el mismo mensaje", notifications);
+                    } else {
+                        return Flux.fromIterable(notifications)
+                                .flatMap(notification -> userRepository.findById(notification.getUserReferenceId())
+                                        .map(user -> new NotificationResponseDto(notification, user.getName())))
+                                .collectList()
+                                .flatMap(notificationWithUsers -> ResponseUtil.createSuccessResponse("Usuarios encontrados con el mismo mensaje", notificationWithUsers));
+
+                        //  4.2 Si la lista no está vacía regresa la lista
+                       /* return ResponseUtil.createSuccessResponse("Usuarios encontrados con el mismo mensaje", notifications);  */
                     }
                 });
         //.onErrorResume(e -> ResponseUtil.createErrorResponse("Error al obtener notificaciones para el mensaje", HttpStatus.INTERNAL_SERVER_ERROR));;
