@@ -11,6 +11,7 @@
 
     import java.util.List;
     import java.util.UUID;
+    import java.util.stream.Collectors;
 
     @Service
     public class UserService {
@@ -25,13 +26,19 @@
         }
 
         public Flux<User> getAllUsersWithNotificationMessages() {
-            return userRepository.findAll()
+            return userRepository.findAll()  // Obtener todos los usuarios
                     .flatMap(user -> {
-                        List<String> notificationIds = user.getNotifications();
-                        if (!notificationIds.isEmpty()) {
-                            return Mono.just(user); // Devolver el usuario con las notificaciones (mensajes) ya incluidas
-                        }
-                        return Mono.just(user); // Devolver el usuario sin hacer procesamiento adicional
+                        // Buscar las notificaciones del usuario usando su userReferenceId
+                        return notificationRepository.findByUserReferenceId(user.getId())
+                                .collectList()  // Recoger las notificaciones en una lista
+                                .map(notifications -> {
+                                    // Convertir las notificaciones a mensajes y asignarlas al usuario
+                                    List<String> notificationMessages = notifications.stream()
+                                            .map(Notification::getMessage)
+                                            .collect(Collectors.toList());
+                                    user.setNotifications(notificationMessages);  // Asignar los mensajes de notificación al usuario
+                                    return user;
+                                });
                     });
         }
 

@@ -12,5 +12,6 @@ public class CustomApiResponse<T> {
     private final String status;
     private final String message;
     private final T data;
+    private final int httpStatusCode;  // incluir el código de estado HTTP
 
 }

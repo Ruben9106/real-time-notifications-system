@@ -14,6 +14,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public class UserController {
     })
     @GetMapping
     public Mono<ResponseEntity<CustomApiResponse<List<User>>>> getAllUsers() {
-        return userService.getAllUsersWithNotificationMessages()
+        return userService.getAllUsersWithNotificationMessages()  // Llama al servicio para obtener los usuarios con notificaciones
                 .collectList()
                 .flatMap(users -> {
                     if (users.isEmpty()) {

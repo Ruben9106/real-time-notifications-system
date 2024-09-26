@@ -23,6 +23,8 @@ public class Notification {
 
     private Instant timestamp;
 
+    private boolean read;
+
 }
 
 

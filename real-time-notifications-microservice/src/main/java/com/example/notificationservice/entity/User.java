@@ -25,7 +25,5 @@ public class User {
     private List<String> notifications = new ArrayList<>();
 
 
-    //List para notificaciones
-
 
 }
