@@ -2,6 +2,7 @@ package com.example.notificationservice.controller;
 
 import com.example.notificationservice.HttpResponse.CustomApiResponse; // Cambio de nombre de ApiResponse a CustomApiResponse
 import com.example.notificationservice.HttpResponse.ResponseUtil;
+import com.example.notificationservice.dto.UserDto;
 import com.example.notificationservice.entity.User;
 import com.example.notificationservice.service.NotificationService;
 import com.example.notificationservice.service.UserService;
@@ -17,7 +18,9 @@ import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api-clients/v1.0/users")
@@ -56,7 +59,8 @@ public class UserController {
             @ApiResponse(responseCode = "500", description = "Error saving the user")
     })
     @PostMapping
-    public Mono<ResponseEntity<CustomApiResponse<User>>> saveUser(@RequestBody User user) {
+    public Mono<ResponseEntity<CustomApiResponse<User>>> saveUser(@RequestBody UserDto userDto) {
+        User user = new User(UUID.randomUUID().toString().substring(0,6), userDto.getName(), userDto.getEmail(), new ArrayList<>());
         return userService.saveUser(user)
                 .flatMap(savedUser -> ResponseUtil.createSuccessResponse("Usuario guardado con éxito.", savedUser))
                 .onErrorResume(e -> ResponseUtil.createErrorResponse("Error al guardar el usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
