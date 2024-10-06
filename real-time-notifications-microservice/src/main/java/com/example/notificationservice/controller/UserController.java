@@ -1,21 +1,22 @@
 package com.example.notificationservice.controller;
 
-import com.example.notificationservice.HttpResponse.CustomApiResponse; // Cambio de nombre de ApiResponse a CustomApiResponse
+import com.example.notificationservice.HttpResponse.CustomApiResponse;
 import com.example.notificationservice.HttpResponse.ResponseUtil;
 import com.example.notificationservice.dto.UserDto;
 import com.example.notificationservice.entity.User;
 import com.example.notificationservice.service.NotificationService;
 import com.example.notificationservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -29,10 +30,13 @@ public class UserController {
     private final UserService userService;
     private final NotificationService notificationService;
 
+
     public UserController(UserService userService, NotificationService notificationService) {
         this.userService = userService;
         this.notificationService = notificationService;
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @Operation(summary = "Get all users with their notifications", description = "Retrieve a list of users along with their notifications")
     @ApiResponses(value = {
@@ -45,9 +49,11 @@ public class UserController {
         return userService.getAllUsersWithNotificationMessages()  // Llama al servicio para obtener los usuarios con notificaciones
                 .collectList()
                 .flatMap(users -> {
-                    if (users.isEmpty()) {
+                    if (users == null || users.isEmpty()) {
+                        logger.warn("No se encontraron usuarios.");
                         return ResponseUtil.createErrorResponse("No se encontraron usuarios.", HttpStatus.NOT_FOUND);
                     }
+                    logger.info("Usuarios encontrados: {}", users.size());
                     return ResponseUtil.createSuccessResponse("Usuarios encontrados", users);
                 });
     }
@@ -60,7 +66,7 @@ public class UserController {
     })
     @PostMapping
     public Mono<ResponseEntity<CustomApiResponse<User>>> saveUser(@RequestBody UserDto userDto) {
-        User user = new User(UUID.randomUUID().toString().substring(0,6), userDto.getName(), userDto.getEmail(), new ArrayList<>());
+        User user = new User(UUID.randomUUID().toString().substring(0, 6), userDto.getName(), userDto.getEmail(), new ArrayList<>());
         return userService.saveUser(user)
                 .flatMap(savedUser -> ResponseUtil.createSuccessResponse("Usuario guardado con éxito.", savedUser))
                 .onErrorResume(e -> ResponseUtil.createErrorResponse("Error al guardar el usuario: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));

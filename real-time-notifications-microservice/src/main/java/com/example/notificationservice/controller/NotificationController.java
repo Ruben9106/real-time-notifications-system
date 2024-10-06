@@ -8,11 +8,11 @@ import com.example.notificationservice.entity.Notification;
 import com.example.notificationservice.repository.NotificationRepository;
 import com.example.notificationservice.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -82,7 +82,7 @@ public class NotificationController {
     // II. Verificar todos los userReferenceId que tiene el mismo mensaje o notificacions
     @GetMapping("/users/notifications")
     public Mono<ResponseEntity<CustomApiResponse<List<NotificationResponseDto>>>>
-    getNotificationsUserIdforMessage(@RequestBody String message){
+    getNotificationsUserIdforMessage(@RequestParam  String message){
         return notificationService.getNotificationsByMessage(message);
     }
 

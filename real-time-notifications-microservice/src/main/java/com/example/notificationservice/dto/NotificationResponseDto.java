@@ -1,10 +1,9 @@
 package com.example.notificationservice.dto;
 
+import com.example.notificationservice.entity.Notification;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import com.example.notificationservice.entity.Notification;
-
 
 import java.time.Instant;
 

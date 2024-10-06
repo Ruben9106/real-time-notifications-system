@@ -4,6 +4,8 @@
     import com.example.notificationservice.entity.User;
     import com.example.notificationservice.repository.NotificationRepository;
     import com.example.notificationservice.repository.UserRepository;
+    import org.slf4j.Logger;
+    import org.slf4j.LoggerFactory;
     import org.springframework.beans.factory.annotation.Autowired;
     import org.springframework.stereotype.Service;
     import reactor.core.publisher.Flux;
@@ -18,6 +20,9 @@
 
         private final UserRepository userRepository;
         private final NotificationRepository notificationRepository;
+
+        private static final Logger logger = LoggerFactory.getLogger(UserService.class);
+
 
         @Autowired
         public UserService(UserRepository userRepository, NotificationRepository notificationRepository) {
@@ -38,8 +43,13 @@
                                             .collect(Collectors.toList());
                                     user.setNotifications(notificationMessages);  // Asignar los mensajes de notificación al usuario
                                     return user;
+                                })
+                                .onErrorResume(e -> {
+                                    // Manejo de errores
+                                    logger.error("Error al obtener notificaciones para el usuario {}: {}", user.getId(), e.getMessage());
+                                    return Mono.just(user);  // Devuelve el usuario sin notificaciones en caso de error
                                 });
-                    });
+                                });
         }
 
         //Guardar un usuario
@@ -48,6 +58,8 @@
                 user.setId(UUID.randomUUID().toString().substring(0,6));  // Generar un ID único para el usuario
             }
             return userRepository.save(user)
+                    .doOnSuccess(savedUser -> logger.info("User saved: {}", savedUser))
+                    .doOnError(error -> logger.error("Error saving user: {}", error.getMessage()))
                     .onErrorResume(e -> Mono.error(new RuntimeException("Error al guardar el usuario: " + e.getMessage())));
         }
 

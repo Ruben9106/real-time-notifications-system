@@ -5,7 +5,6 @@ import org.springframework.http.ResponseEntity;
 import reactor.core.publisher.Mono;
 
 public class ResponseUtil {
-
     // Metodo genérico para crear respuestas con datos
     public static <T> Mono<ResponseEntity<CustomApiResponse<T>>> createResponse(String status, String message, T data, HttpStatus httpStatus) {
         // Se añade el código de estado HTTP en la respuesta
@@ -22,4 +21,5 @@ public class ResponseUtil {
     public static <T> Mono<ResponseEntity<CustomApiResponse<T>>> createErrorResponse(String message, HttpStatus httpStatus) {
         return createResponse("error", message, null, httpStatus);
     }
+
 }
